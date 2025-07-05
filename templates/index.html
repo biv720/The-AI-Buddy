@@ -1,0 +1,249 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Therapy - Gemma</title>
+</head>
+<body>
+  <h2>🧠 Talk to Gemma</h2>
+  <form method="POST">
+    <input type="text" name="user_input" required />
+    <button type="submit">Send</button>
+  </form>
+
+  {% if response %}
+    <p><strong>Gemma:</strong> {{ response }}</p>
+    {% if audio_file %}
+      <audio controls autoplay>
+        <source src="{{ audio_file }}" type="audio/mpeg">
+      </audio>
+    {% endif %}
+  {% endif %}
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Buddy - Gemma</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg);
+      color: var(--text);
+      transition: all 0.3s ease;
+    }
+    :root {
+      --bg: #f5f5f5;
+      --text: #222;
+      --input-bg: #fff;
+      --bubble-user: #dcf8c6;
+      --bubble-ai: #eee;
+    }
+    .dark {
+      --bg: #121212;
+      --text: #eee;
+      --input-bg: #1e1e1e;
+      --bubble-user: #075e54;
+      --bubble-ai: #262d31;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+    }
+    .chat-box {
+      max-height: 500px;
+      overflow-y: auto;
+      margin-bottom: 10px;
+      padding: 10px;
+      background: var(--input-bg);
+      border-radius: 10px;
+    }
+    .bubble {
+      padding: 10px 15px;
+      border-radius: 20px;
+      margin: 8px 0;
+      display: inline-block;
+      max-width: 80%;
+    }
+    .user {
+      background-color: var(--bubble-user);
+      align-self: flex-end;
+      text-align: right;
+    }
+    .ai {
+      background-color: var(--bubble-ai);
+      align-self: flex-start;
+    }
+    .form-container {
+      display: flex;
+      gap: 10px;
+    }
+    .form-container input[type="text"] {
+      flex-grow: 1;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      background-color: var(--input-bg);
+      color: var(--text);
+    }
+
+    .switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 28px;
+  }
+
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 28px;
+  }
+
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+  }
+
+  input:checked + .slider {
+    background-color: #2196F3;
+  }
+
+  input:checked + .slider:before {
+    transform: translateX(22px);
+  }
+
+
+    textarea {
+      resize: none;
+      flex-grow: 1;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      background-color: var(--input-bg);
+      color: var(--text);
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .footer-note {
+      text-align: center;
+      font-size: 0.9em;
+      color: gray;
+      padding: 20px;
+    }
+
+    .form-container button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .audio-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    .theme-toggle {
+      text-align: right;
+      padding: 10px;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="theme-toggle">
+    <span style="margin-right: 8px;">🌞</span>
+    <label class="switch">
+      <input type="checkbox" onchange="toggleTheme(this)">
+      <span class="slider round"></span>
+    </label>
+    <span style="margin-left: 8px;">🌙</span>
+  </div>
+
+  <div class="container">
+    <h2>🧠 Talk to Gemma</h2>
+    <div class="chat-box" id="chat">
+      {% if user_input %}
+        <div class="bubble user">{{ user_input }}</div>
+      {% endif %}
+
+      {% for msg in chat_history %}
+      <div class="bubble {{ msg.sender }}">
+        {{ msg.text }}
+        {% if msg.sender == 'ai' and msg.audio %}
+          <br>
+          <button class="audio-button" onclick="playAudio('{{ msg.audio }}')">🔊</button>
+        {% endif %}
+      </div>
+    {% endfor %}
+
+    </div>
+
+    
+
+
+    <form class="form-container" method="POST" id="chat-form">
+      <textarea name="user_input" id="user_input" rows="1" placeholder="Type your thoughts..." required></textarea>
+      <button type="submit">Send</button>
+      <button type="button" onclick="recordAudio()">🎤</button>
+    </form>
+  </div>
+  <div class="footer-note">
+      🛠️ It is a work in progress.
+  </div>
+  <script>
+    function toggleTheme(toggle) {
+      document.body.classList.toggle('dark', toggle.checked);
+    }
+
+
+    function playAudio(filePath) {
+      const audio = new Audio(filePath);
+      audio.play();
+    }
+
+    function recordAudio() {
+      alert("🎤 Voice input coming soon! (To be implemented)");
+    }
+    const inputBox = document.getElementById("user_input");
+
+    inputBox.addEventListener("keydown", function(event) {
+      if (event.key === "Enter") {
+        if (event.shiftKey) {
+          // Allow newline
+          return;
+        } else {
+          // Prevent newline, submit form
+          event.preventDefault();
+          document.getElementById("chat-form").submit();
+        }
+      }
+    });
+
+
+  </script>
+</body>
+</html>

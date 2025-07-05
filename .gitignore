@@ -1,0 +1,36 @@
+# 🧠 Ignore local model files
+models/
+*.gguf
+
+# 🔊 Ignore generated audio files
+*.mp3
+static/*.mp3
+
+# 🧼 Python cache stuff
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# 🧪 Virtual environments
+venv/
+env/
+.venv/
+
+# 🔐 Secrets (if you use .env files)
+.env
+
+# 🗃️ OS & editor junk
+.DS_Store
+Thumbs.db
+*.log
+
+# 🐍 IDE specific
+.vscode/
+.idea/
+
+# 🧪 Test files (if any)
+*.test.py
+
+# 📝 System metadata
+*.swp
