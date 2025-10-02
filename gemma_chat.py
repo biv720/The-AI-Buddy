@@ -1,22 +1,36 @@
 import os
-from llama_cpp import Llama
+import requests
+from dotenv import load_dotenv
 
-# Dynamically locate the model file
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, "models", "model.gguf")
+# Load API key from .env (best practice)
+load_dotenv()
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
-# Load the model
-llm = Llama(model_path=MODEL_PATH, n_ctx=2048, verbose=False)
+# OpenRouter API endpoint
+API_URL = "https://openrouter.ai/api/v1/chat/completions"
 
-def get_ai_response(prompt):
-    formatted_prompt = (
-        "<start_of_turn>user\n"
-        f"{prompt}\n"
-        "<end_of_turn>\n"
-        "<start_of_turn>model\n"
-    )
-    response = llm(formatted_prompt, max_tokens=256, stop=["<end_of_turn>"])
-    return response['choices'][0]['text'].strip()
+def get_ai_response(prompt, model="mistralai/mistral-7b-instruct:free"):
+    headers = {
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Content-Type": "application/json",
+        "HTTP-Referer": "http://localhost",  # required by OpenRouter policy
+    }
+
+    body = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": "You are a compassionate mental health assistant."},
+            {"role": "user", "content": prompt}
+        ]
+    }
+
+    try:
+        response = requests.post(API_URL, headers=headers, json=body, timeout=30)
+        response.raise_for_status()
+        data = response.json()
+        return data['choices'][0]['message']['content']
+    except Exception as e:
+        return f"⚠️ Error: {e}"
 
 if __name__ == "__main__":
     while True:
@@ -24,4 +38,4 @@ if __name__ == "__main__":
         if user_input.lower() in ["exit", "quit", "q"]:
             break
         reply = get_ai_response(user_input)
-        print("🤖 Gemma:", reply)
+        print("🤖 Mistral:", reply)
